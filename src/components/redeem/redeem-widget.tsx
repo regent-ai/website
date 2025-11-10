@@ -905,9 +905,12 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 				<div className="flex items-center gap-2">
 					<Button
 						variant="secondary"
+						className="px-5 py-3 sm:px-4 sm:py-2 min-h-[48px] rounded-lg select-none active:scale-[.98]"
 						onClick={ensureWallet}
 						disabled={status === "connecting"}
 						title={account ?? "Connect"}
+						aria-label="Connect Wallet"
+						type="button"
 					>
 						{account ? `${account.slice(0, 6)}…${account.slice(-4)}` : status === "connecting" ? "Connecting…" : "Connect Wallet"}
 					</Button>

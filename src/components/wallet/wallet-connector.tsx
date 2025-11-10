@@ -73,7 +73,10 @@ export function WalletConnector() {
     <Button
       variant="outline"
       size="lg"
-      className="text-base md:text-lg"
+      className="text-base md:text-lg px-5 py-3 sm:px-6 sm:py-2 min-h-[48px] rounded-lg select-none active:scale-[.98]"
+      style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
+      aria-label="Connect Wallet"
+      type="button"
       onClick={connect}
       title={account ?? "Connect"}
     >
