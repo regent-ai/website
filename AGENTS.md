@@ -88,6 +88,20 @@ Store secrets in `.env`/`.env.local` and never log them.
 - Keep presentational components stateless; compute data in route handlers or server actions.
 - Don’t introduce global CSS outside `src/app/globals.css` without strong reason.
 
+### Redemption (UI) and Wallet Connector
+
+- Key files:
+  - `src/components/redeem/redeem-widget.tsx` — UI + viem wallet flow (Permit2).
+  - `src/components/wallet/wallet-connector.tsx` — Top-right connect button (Base), global convenience.
+  - `src/app/redeem/page.tsx` — dedicated redemption route; shows the widget and a top-right wallet connector.
+  - `src/app/page.tsx` — home hero only with top-right wallet connector; no redemption UI here.
+- Notes:
+  - The Redeem widget takes precedence on the home page; `GridHero` remains the animated background.
+  - The wallet connector is lightweight and independent; the Redeem widget still manages its own wallet flow.
+  - Cursor is visible (removed `.grid { cursor: none; }`); widget overlay uses high z-index for clarity.
+  - The previous middle-of-screen teaser text was removed to reduce visual noise.
+  - The top 4 grid rows are intentionally empty and the grid is shifted down, leaving a clear top band; the Redeem widget is top-centered in that band with the wallet button at top-right.
+
 ## Safety & Guardrails
 
 - Secrets: never log `CDP_*` values or expose server-only env to the client.
@@ -127,6 +141,64 @@ Store secrets in `.env`/`.env.local` and never log them.
 - Prefer TypeScript-first, zod validation, and Tailwind utility-first styling.
 - Before large edits, scan for similar patterns and reuse utilities.
 - When in doubt, run `bun run typecheck` and test locally with `bun run dev`.
+
+## NFT Redemption (Animata → Collection 3)
+
+This app includes a client-side redemption flow that lets a user:
+- Approve ERC‑721 `setApprovalForAll` on Animata 1 or 2
+- Sign a Uniswap Permit2 typed-data to spend exactly 80 USDC on Base
+- Call the `redeemWithPermit` function on the on-chain Redeemer contract
+
+Key files:
+- `src/components/redeem/redeem-widget.tsx` — UI + viem wallet flow (Permit2)
+- `src/app/api/opensea/route.ts` — server proxy for OpenSea holdings (Base)
+- `src/lib/permit2.ts` — Permit2 EIP-712 domain/types
+- `src/lib/redeem-constants.ts` — addresses, price, minimal ABIs
+- `src/app/page.tsx` — previously wired this under the hero; now the Atomic Swap widget is centered
+
+Configuration:
+- `NEXT_PUBLIC_REDEEMER_ADDRESS` — the deployed Redeemer contract (client-visible)
+- `OPENSEA_API_KEY` — server key used to fetch user holdings from OpenSea
+
+Notes:
+- Chain is Base mainnet (`viem/chains` `base`); wallet auto-switches if needed.
+- USDC amount is fixed to `80 * 1e6`.
+- Holdings view is optional; user can directly input a token ID 1–999.
+
+On-chain (Base mainnet 8453):
+- Animata 1: `0x78402119ec6349a0d41f12b54938de7bf783c923`
+- Animata 2: `0x903c4c1e8b8532fbd3575482d942d493eb9266e2`
+- Collection 3: `0x2208aadbdecd47d3b4430b5b75a175f6d885d487`
+- USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (6 decimals)
+- REGENT: `0x6f89bcA4eA5931EdFCB09786267b251DeE752b07` (18 decimals)
+- Redeemer: set `NEXT_PUBLIC_REDEEMER_ADDRESS` once deployed
+
+### Batch-transfer Collection 3 to Redeemer
+
+Use the provided Bun/viem script to move all `1..1998` Collection 3 NFTs to the Redeemer in batches via `depositCollection3`:
+
+Env:
+```
+PRIVATE_KEY=0x...                  # OWNER who holds Collection 3
+REDEEMER_ADDRESS=0x...             # deployed AnimataRedeemer
+COLLECTION3_ADDRESS=0x2208aadbdecd47d3b4430b5b75a175f6d885d487
+RPC_URL=https://mainnet.base.org
+START_ID=1
+END_ID=1998
+CHUNK_SIZE=75                      # tune 50–125 depending on gas
+```
+
+Run:
+```
+bun run scripts/transfer-collection3.ts
+# or
+bun run transfer:c3
+```
+
+Notes:
+- The script first calls `setApprovalForAll(Collection3, Redeemer)` if needed.
+- Then it sends multiple `depositCollection3(uint256[] ids)` txs, chunked by `CHUNK_SIZE`.
+- Only the Redeemer `OWNER` can call `depositCollection3`; use the OWNER’s key.
 
 ## TODO large plan 
 TL;DR (the thesis)

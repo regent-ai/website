@@ -13,14 +13,13 @@
     color: color-mix(in hsl, canvasText, canvas 25%);
   }
   
-  .grid {
+  .hero-grid {
     display: grid;
     grid-template: repeat(var(--rows, 10), 1fr) / repeat(var(--cols, 10), 1fr);
     font-size: 10rem;
     font-weight: 600;
     line-height: 1;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    cursor: none;
     width: 100%;
     height: 100%;
     user-select: none;
@@ -29,7 +28,7 @@
     -ms-user-select: none;
   }
   
-  .grid div {
+  .hero-grid div {
     padding: 2px;
     opacity: calc(var(--opacity) * 0.5);
     aspect-ratio: 1;
@@ -48,12 +47,12 @@
   }
   
   @media(prefers-color-scheme: dark) {
-    .grid div {
+    .hero-grid div {
       opacity: calc(var(--opacity) + 0.2);
     }
   }
   
-  .grid div:hover {
+  .hero-grid div:hover {
     transition-property: opacity, rotate, filter;
     transition-duration: 0s, 0s, 0s !important;
     rotate: calc(var(--grade, 0) * 90deg);
@@ -61,11 +60,11 @@
     opacity: 1;
   }
   
-  [data-theme='dark'] .grid div {
+  [data-theme='dark'] .hero-grid div {
     opacity: calc(var(--opacity) + 0.2);
   }
   
-  [data-theme='dark'] .grid div:hover {
+  [data-theme='dark'] .hero-grid div:hover {
     opacity: 1;
   }
   
@@ -280,7 +279,7 @@
   }
 
   /* Apply Mondwest font to all elements except monospace */
-  body *:not(.grid):not(code):not(pre) {
+  body *:not(.hero-grid):not(code):not(pre) {
     font-family: var(--font-mondwest), 'SF Pro Text', 'SF Pro Icons', 'AOS Icons', 'Helvetica Neue',
       Helvetica, Arial, sans-serif, system-ui;
   }

@@ -15,7 +15,7 @@ export const chain = chainMap[env.NETWORK];
 
 const publicClient = createPublicClient({
   chain,
-  transport: http(),
+  transport: http(env.BASE_RPC_URL ?? env.RPC_URL),
 });
 
 export async function getOrCreatePurchaserAccount(): Promise<Account> {

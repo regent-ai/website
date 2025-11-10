@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface Cell {
   grade: number;
@@ -47,13 +49,21 @@ export function GridHero() {
       
       const cells: (Cell | null)[] = [];
       
-      // Define empty area for title (upper left) - smaller now
+      // Reserve top rows empty for widget overlay (hide one more row)
+      const emptyTopRows = 5;
+      // (legacy) empty area for title (upper left)
       const emptyCols = 5;
       const emptyRows = 2;
       
       for (let i = 0; i < gridCols * gridRows; i++) {
         const row = Math.floor(i / gridCols);
         const col = i % gridCols;
+        
+        // Skip entire top rows
+        if (row < emptyTopRows) {
+          cells.push(null);
+          continue;
+        }
         
         // Skip cells in the empty area (upper left)
         if (row < emptyRows && col < emptyCols) {
@@ -98,6 +108,12 @@ export function GridHero() {
       
       grid.style.setProperty("--cols", String(gridCols));
       grid.style.setProperty("--rows", String(gridRows));
+
+      // Shift the grid down so it visually starts after the empty top rows
+      const cellHeight = window.innerHeight / gridRows;
+      const reservedHeight = Math.round(cellHeight * emptyTopRows);
+      grid.style.marginTop = `${reservedHeight}px`;
+      grid.style.height = `calc(100% - ${reservedHeight}px)`;
     };
 
     buildGrid();
@@ -313,7 +329,7 @@ export function GridHero() {
 
   return (
     <main style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden" }}>
-      <div ref={gridRef} className="grid"></div>
+      <div ref={gridRef} className="hero-grid"></div>
       
       {/* Regent title in upper left */}
       <div style={{
@@ -328,32 +344,14 @@ export function GridHero() {
         lineHeight: 1.4,
       }}>
         <div>Regent</div>
-        <div style={{ fontSize: "1.6rem", opacity: 0.8 }}>agent x402 revenue, tokenized</div>
+        <div style={{ fontSize: "1.6rem", opacity: 0.8 }}>
+          agent x402 revenue,<br />tokenized
+        </div>
       </div>
       
-      {/* Middle message after 4 seconds */}
-      {showMessage && (
-        <div style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 20,
-          color: "white",
-          fontSize: "3rem",
-          fontWeight: 600,
-          fontFamily: "var(--font-mondwest)",
-          textAlign: "center",
-          padding: "20px",
-          background: "rgba(0, 0, 0, 0.7)",
-          borderRadius: "8px",
-          opacity: hideHintText || hideHintAfterDelay ? 0 : 1,
-          transition: "opacity 0.3s ease-out",
-          pointerEvents: showHint ? "none" : "auto",
-        }}>
-          {showHint ? "ok you are early. here's a hint" : "what are you doing here? regent.cx is for agents"}
-        </div>
-      )}
+      {/* Center-top call-to-action removed */}
+      
+      {/* Middle text removed per design */}
       
       {/* Timeline card */}
       {showTimelineCard && (
@@ -387,7 +385,6 @@ export function GridHero() {
               Timeline
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div>Whitepaper 10/30 4:02am UTC</div>
               <div style={{ position: "relative" }}>
                 <span 
                   className={isLogoAnimationActive ? "glitch-text-green" : "glitch-text"}

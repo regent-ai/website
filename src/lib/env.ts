@@ -9,6 +9,14 @@ export const env = createEnv({
     CDP_API_KEY_SECRET: z.string().optional(),
     NETWORK: z.enum(["base-sepolia", "base"]).default("base-sepolia"),
     URL: z.string().url().default("http://localhost:3000"),
+    OPENSEA_API_KEY: z.string().optional(),
+    RPC_URL: z.string().url().optional(),
+    BASE_RPC_URL: z.string().url().optional(),
+  },
+  client: {
+    NEXT_PUBLIC_REDEEMER_ADDRESS: z.string().optional(),
+    NEXT_PUBLIC_RPC_URL: z.string().url().optional(),
+    NEXT_PUBLIC_BASE_RPC_URL: z.string().url().optional(),
   },
 
   /**
@@ -23,6 +31,12 @@ export const env = createEnv({
     URL: process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : undefined,
+    OPENSEA_API_KEY: process.env.OPENSEA_API_KEY,
+    NEXT_PUBLIC_REDEEMER_ADDRESS: process.env.NEXT_PUBLIC_REDEEMER_ADDRESS,
+    RPC_URL: process.env.RPC_URL,
+    BASE_RPC_URL: process.env.BASE_RPC_URL,
+    NEXT_PUBLIC_RPC_URL: process.env.NEXT_PUBLIC_RPC_URL,
+    NEXT_PUBLIC_BASE_RPC_URL: process.env.NEXT_PUBLIC_BASE_RPC_URL,
   },
 
   /**
