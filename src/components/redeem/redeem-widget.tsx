@@ -842,7 +842,7 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 									<br />
 									<span className="text-white/70">
 										REGENT remaining to claim:{" "}
-										<span className="font-semibold">{formatRegentRounded2(remaining)} REGENT</span>
+										<span className="font-semibold">{formatRegentRounded2(remaining)}</span>
 									</span>
 								</>
 							)}
@@ -974,7 +974,7 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 									<br />
 									<span className="text-white/70">
 										REGENT remaining to claim:{" "}
-										<span className="font-semibold">{formatRegentRounded2(remaining)} REGENT</span>
+										<span className="font-semibold">{formatRegentRounded2(remaining)}</span>
 									</span>
 								</>
 							)}
