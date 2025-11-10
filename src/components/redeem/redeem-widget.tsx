@@ -111,6 +111,7 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 	const [error, setError] = React.useState<string | null>(null);
 	const [holdings, setHoldings] = React.useState<HoldingList | null>(null);
 	const [claimable, setClaimable] = React.useState<bigint | null>(null);
+	const [remaining, setRemaining] = React.useState<bigint | null>(null);
 	const [fetched, setFetched] = React.useState<{ ANIMATA1: boolean; ANIMATA2: boolean }>({
 		ANIMATA1: false,
 		ANIMATA2: false,
@@ -164,6 +165,17 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 				if (c > BigInt(0)) {
 					console.log("[RedeemWidget] Claimable REGENT for", acc, `${formatUnits(c, 18)} REGENT`);
 				}
+				// Also fetch vest totals to compute remaining (pool + released - claimed)
+				try {
+					const [pool, released, claimed] = (await publicClient.readContract({
+						address: redeemerAddress,
+						abi: redeemerAbi,
+						functionName: "getVest",
+						args: [acc],
+					})) as readonly [bigint, bigint, bigint, bigint];
+					const outstanding = pool + released - claimed;
+					setRemaining(outstanding < 0n ? 0n : outstanding);
+				} catch {}
 			} catch {
 				// ignore
 			}
@@ -439,6 +451,17 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 			if (c > BigInt(0)) {
 				console.log("[RedeemWidget] Claimable REGENT for", acc, `${formatUnits(c, 18)} REGENT`);
 			}
+			// Also refresh vest totals
+			try {
+				const [pool, released, claimed] = (await publicClient.readContract({
+					address: redeemerAddress,
+					abi: redeemerAbi,
+					functionName: "getVest",
+					args: [acc],
+				})) as readonly [bigint, bigint, bigint, bigint];
+				const outstanding = pool + released - claimed;
+				setRemaining(outstanding < 0n ? 0n : outstanding);
+			} catch {}
 		} catch (e) {
 			// ignore
 		}
@@ -812,8 +835,17 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 						<p className="text-lg md:text-xl text-white/80">
 							Claimable REGENT:{" "}
 							<span className="font-semibold">
-								{claimable !== null ? `${formatRegentRounded2(claimable)} REGENT` : "—"}
+								{claimable !== null ? `${formatRegentRounded2(claimable)}` : "—"}
 							</span>
+							{remaining !== null && (
+								<>
+									<br />
+									<span className="text-white/70">
+										REGENT remaining to claim:{" "}
+										<span className="font-semibold">{formatRegentRounded2(remaining)} REGENT</span>
+									</span>
+								</>
+							)}
 						</p>
 						<div className="flex items-center gap-2">
 							<Button variant="ghost" className="border border-white/20" onClick={refreshClaimable} disabled={status !== "idle"}>
@@ -935,8 +967,17 @@ export function RedeemWidget({ variant = "full" }: RedeemWidgetProps) {
 						<p className="text-sm text-white/80">
 							Claimable REGENT:{" "}
 							<span className="font-semibold">
-								{claimable !== null ? `${formatRegentRounded2(claimable)} REGENT` : "—"}
+								{claimable !== null ? `${formatRegentRounded2(claimable)}` : "—"}
 							</span>
+							{remaining !== null && (
+								<>
+									<br />
+									<span className="text-white/70">
+										REGENT remaining to claim:{" "}
+										<span className="font-semibold">{formatRegentRounded2(remaining)} REGENT</span>
+									</span>
+								</>
+							)}
 						</p>
 						<div className="flex items-center gap-2">
 							<Button variant="ghost" className="border border-white/20" onClick={refreshClaimable} disabled={status !== "idle"}>
